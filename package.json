@@ -1,0 +1,1 @@
+{"name":"video-kit","private":true,"type":"module","dependencies":{"playwright":"latest"},"optionalDependencies":{"ffmpeg-static":"latest","ffprobe-static":"latest"}}
