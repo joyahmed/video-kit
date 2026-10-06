@@ -5,7 +5,7 @@ It drives the app in a real browser, records it, adds captions, and exports an M
 
 Setup once: `bun install` here (Playwright + ffmpeg-static), then `bunx playwright install chromium`.
 
-Each project keeps its own shot list (what to click, what caption to show), e.g. `ring-gatelog/video/shots.mjs`.
+Each project keeps its own shot list (what to click, what caption to show), e.g. `my-app/video/shots.mjs`.
 `shots/example.mjs` shows the format. Steps: goto wait click hover type scroll highlight caption (all take `ms`).
 
 More steps (defaults in `lib.mjs` planMs: media 300 ms, card 4000, device 4000):
@@ -18,11 +18,11 @@ More steps (defaults in `lib.mjs` planMs: media 300 ms, card 4000, device 4000):
 Shot-list key `scale` (e.g. 1.3333) lays the page out smaller and captures it sharp: a CSS `zoom` on the top frame through an injected `<style id=__vkz>`. Card pages opt out with `html[data-vk-nozoom]`. `deviceScaleFactor` is not used: in recordings it crops instead of scaling.
 
 ```
-node record.mjs --base http://localhost:3000 --shots ../ring-gatelog/video/shots.mjs --out out/gatelog.webm
-node srt.mjs --timeline out/gatelog.timeline.json --out out/gatelog.srt     # captions as a subtitle file
-node mux.mjs out/gatelog.webm --out out/gatelog.mp4                          # H.264, plays everywhere
-node mux.mjs out/gatelog.webm --voice vo.mp3 --music bed.mp3 --music-vol 0.1 --trim-head 1 --trim-tail 1
-node mux.mjs out/gatelog.webm --srt out/gatelog.srt [--burn]                 # soft track, or drawn into the picture
+node record.mjs --base http://localhost:3000 --shots ../my-app/video/shots.mjs --out out/demo.webm
+node srt.mjs --timeline out/demo.timeline.json --out out/demo.srt     # captions as a subtitle file
+node mux.mjs out/demo.webm --out out/demo.mp4                          # H.264, plays everywhere
+node mux.mjs out/demo.webm --voice vo.mp3 --music bed.mp3 --music-vol 0.1 --trim-head 1 --trim-tail 1
+node mux.mjs out/demo.webm --srt out/demo.srt [--burn]                 # soft track, or drawn into the picture
 ```
 
 - `--pace 1.5` slows everything by 50%. `BASE_URL` env works instead of `--base`.
@@ -30,3 +30,5 @@ node mux.mjs out/gatelog.webm --srt out/gatelog.srt [--burn]                 # s
 - ffmpeg: `$FFMPEG`, then PATH, then ffmpeg-static.
 - Captions in the picture use Inter from Google Fonts; offline they fall back to a system font.
 - Output goes to `out/` (git-ignored).
+
+MIT licence - see `LICENSE`.
