@@ -17,6 +17,9 @@ export function planMs(s) {
     case 'type': return s.ms ?? Math.max(1200, (s.text?.length ?? 0) * 120 + 600);
     case 'scroll': return s.ms ?? 1800;
     case 'highlight': return s.ms ?? 2000;
+    case 'media': return s.ms ?? 300;
+    case 'card': return s.ms ?? 4000;
+    case 'device': return s.ms ?? 4000;
     case 'caption': return 0; // overlay is non-blocking; use a following wait
     default: throw new Error(`unknown step: ${s.do}`);
   }

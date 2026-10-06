@@ -8,6 +8,15 @@ Setup once: `bun install` here (Playwright + ffmpeg-static), then `bunx playwrig
 Each project keeps its own shot list (what to click, what caption to show), e.g. `ring-gatelog/video/shots.mjs`.
 `shots/example.mjs` shows the format. Steps: goto wait click hover type scroll highlight caption (all take `ms`).
 
+More steps (defaults in `lib.mjs` planMs: media 300 ms, card 4000, device 4000):
+
+- `card` - a full-screen title or code card: `kicker, title, titleSize, sub, lines[], code` or `codeFrom` (a JSON URL, fetched and pretty-printed) with `codeHead`, plus `codeTitle, codeSize, typeMs` (typing speed), `foot, theme, width`.
+- `device` - the app inside a phone frame or on paper: `url, width, height, zoom, paper, label, note, stage`. The page loads in a same-origin iframe on a stage served at `/__vk/stage` (via `ctx.route`). Both stages leave room at the bottom for the caption.
+- `media` - emulate `colorScheme`, `media` (`'print'`) and `reducedMotion`; `null` resets.
+- `scroll` also takes `frame: true` (scroll the device iframe), `offset` (px above a selector) and `dur`.
+
+Shot-list key `scale` (e.g. 1.3333) lays the page out smaller and captures it sharp: a CSS `zoom` on the top frame through an injected `<style id=__vkz>`. Card pages opt out with `html[data-vk-nozoom]`. `deviceScaleFactor` is not used: in recordings it crops instead of scaling.
+
 ```
 node record.mjs --base http://localhost:3000 --shots ../ring-gatelog/video/shots.mjs --out out/gatelog.webm
 node srt.mjs --timeline out/gatelog.timeline.json --out out/gatelog.srt     # captions as a subtitle file
