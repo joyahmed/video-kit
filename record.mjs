@@ -23,8 +23,9 @@ const shots = await loadShots(a.shots);
 const W = shots.viewport?.width ?? 1920, H = shots.viewport?.height ?? 1080;
 const scale = shots.scale ?? 1;
 // Per-project look for dark cards and the device stage: shot-list keys bg (any CSS background) and accent (kicker, bullets).
-const BG = (at) => shots.bg ?? `radial-gradient(1200px 700px at ${at} 10%,#134e4a 0%,#0b1220 60%)`;
-const ACCENT = shots.accent ?? '#5eead4';
+// Fallback is a plain bluish black with a neutral accent; give every project its own look instead of relying on it.
+const BG = () => shots.bg ?? '#0b1220';
+const ACCENT = shots.accent ?? '#cbd5e1';
 const out = resolve(a.out); mkdirSync(dirname(out), { recursive: true });
 const tmpDir = resolve(dirname(out), '.rec'); mkdirSync(tmpDir, { recursive: true });
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);

@@ -15,7 +15,7 @@ More steps (defaults in `lib.mjs` planMs: media 300 ms, card 4000, device 4000):
 - `media` - emulate `colorScheme`, `media` (`'print'`) and `reducedMotion`; `null` resets.
 - `scroll` also takes `frame: true` (scroll the device iframe), `offset` (px above a selector) and `dur`.
 
-Shot-list keys `bg` (any CSS background) and `accent` (a colour) set the look of dark cards and the device stage, so each project's video has its own colours. Default: teal glow on navy.
+Shot-list keys `bg` (any CSS background) and `accent` (a colour) set the look of dark cards and the device stage, so each project's video has its own colours. Set them for every project - the fallback is a plain bluish black.
 
 Shot-list key `scale` (e.g. 1.3333) lays the page out smaller and captures it sharp: a CSS `zoom` on the top frame through an injected `<style id=__vkz>`. Card pages opt out with `html[data-vk-nozoom]`. `deviceScaleFactor` is not used: in recordings it crops instead of scaling.
 
