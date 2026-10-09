@@ -15,6 +15,8 @@ More steps (defaults in `lib.mjs` planMs: media 300 ms, card 4000, device 4000):
 - `media` - emulate `colorScheme`, `media` (`'print'`) and `reducedMotion`; `null` resets.
 - `scroll` also takes `frame: true` (scroll the device iframe), `offset` (px above a selector) and `dur`.
 
+Shot-list keys `bg` (any CSS background) and `accent` (a colour) set the look of dark cards and the device stage, so each project's video has its own colours. Default: teal glow on navy.
+
 Shot-list key `scale` (e.g. 1.3333) lays the page out smaller and captures it sharp: a CSS `zoom` on the top frame through an injected `<style id=__vkz>`. Card pages opt out with `html[data-vk-nozoom]`. `deviceScaleFactor` is not used: in recordings it crops instead of scaling.
 
 ```
@@ -25,6 +27,7 @@ node mux.mjs out/demo.webm --voice vo.mp3 --music bed.mp3 --music-vol 0.1 --trim
 node mux.mjs out/demo.webm --srt out/demo.srt [--burn]                 # soft track, or drawn into the picture
 ```
 
+- `--captions off` keeps the caption box out of the picture (use it with a voice-over, or when the box covers the app); the cues still go to the timeline, so `srt.mjs` makes a subtitle file viewers can turn on.
 - `--pace 1.5` slows everything by 50%. `BASE_URL` env works instead of `--base`.
 - If you trim the head, pass `--offset -<ms>` to srt.mjs so captions still line up.
 - ffmpeg: `$FFMPEG`, then PATH, then ffmpeg-static.

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Record a scripted walkthrough to WebM (default 1920x1080).
-// Usage: node record.mjs [--shots shots/example.mjs] [--base http://localhost:3000] [--out out/demo.webm] [--headed] [--pace 1.0]
+// Usage: node record.mjs [--shots shots/example.mjs] [--base http://localhost:3000] [--out out/demo.webm] [--headed] [--pace 1.0] [--captions on|off]
+// --captions off: no caption box in the picture (it can cover the app); cues still go to the timeline for srt.mjs.
 // Base URL: --base, else $BASE_URL, else http://localhost:3000. --pace 1.5 = 50% slower.
 // Shot-list keys: viewport {width,height} = output video size; scale (default 1) = CSS zoom on the top page, so text
 // reads bigger at 1080p (scale 1.33 makes a 1152px-wide app column fill 1536px). Frames in a device step keep their own
@@ -14,12 +15,16 @@ import { loadShots, planMs } from './lib.mjs';
 const { values: a } = parseArgs({ options: {
   shots: { type: 'string', default: 'shots/example.mjs' }, base: { type: 'string' },
   out: { type: 'string', default: 'out/demo.webm' }, headed: { type: 'boolean', default: false },
-  pace: { type: 'string', default: '1' } } });
+  pace: { type: 'string', default: '1' }, captions: { type: 'string', default: 'on' } } });
+if (!['on', 'off'].includes(a.captions)) throw new Error('--captions must be on or off');
 const base = (a.base ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const pace = Number(a.pace);
 const shots = await loadShots(a.shots);
 const W = shots.viewport?.width ?? 1920, H = shots.viewport?.height ?? 1080;
 const scale = shots.scale ?? 1;
+// Per-project look for dark cards and the device stage: shot-list keys bg (any CSS background) and accent (kicker, bullets).
+const BG = (at) => shots.bg ?? `radial-gradient(1200px 700px at ${at} 10%,#134e4a 0%,#0b1220 60%)`;
+const ACCENT = shots.accent ?? '#5eead4';
 const out = resolve(a.out); mkdirSync(dirname(out), { recursive: true });
 const tmpDir = resolve(dirname(out), '.rec'); mkdirSync(tmpDir, { recursive: true });
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -51,14 +56,14 @@ function cardHtml(s, code) {
     <pre>${String(code).split('\n').map((l, i) => `<span style="animation-delay:${(s.typeMs ?? 0) * i}ms">${esc(l) || ' '}</span>`).join('\n')}</pre></figure>`;
   return `<!doctype html><html data-vk-nozoom><head><meta charset="utf-8"><link rel="stylesheet" href="${FONT}"><style>
   *{box-sizing:border-box;margin:0} html,body{height:100%}
-  body{background:${dark ? 'radial-gradient(1200px 700px at 20% 10%,#134e4a 0%,#0b1220 60%)' : '#f6f8f9'};color:${dark ? '#f1f5f9' : '#0f172a'};
+  body{background:${dark ? BG('20%') : '#f6f8f9'};color:${dark ? '#f1f5f9' : '#0f172a'};
     font-family:Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding-bottom:170px}
   main{width:${s.width ?? 1480}px;display:flex;flex-direction:column;gap:28px}
-  .kicker{font:700 26px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${dark ? '#5eead4' : '#0f766e'}}
+  .kicker{font:700 26px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:${dark ? ACCENT : '#0f766e'}}
   h1{font:800 ${s.titleSize ?? 84}px/1.08 Inter,sans-serif;letter-spacing:-.02em}
   .sub{font:500 38px/1.4 Inter,sans-serif;color:${dark ? '#cbd5e1' : '#334155'};max-width:1400px}
   ul{list-style:none;display:flex;flex-direction:column;gap:16px;font:500 34px/1.35 Inter,sans-serif;color:${dark ? '#e2e8f0' : '#1e293b'}}
-  li::before{content:'';display:inline-block;width:14px;height:14px;border-radius:50%;background:${dark ? '#2dd4bf' : '#0f766e'};margin:0 22px 4px 0}
+  li::before{content:'';display:inline-block;width:14px;height:14px;border-radius:50%;background:${dark ? ACCENT : '#0f766e'};margin:0 22px 4px 0}
   .term{background:#0b1020;border:1px solid #1e293b;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
   .bar{display:flex;gap:10px;align-items:center;padding:16px 22px;background:#111827;color:#94a3b8;font:500 22px/1 Inter,sans-serif}
   .bar i{width:14px;height:14px;border-radius:50%;background:#334155}.bar i:nth-child(1){background:#ef4444}.bar i:nth-child(2){background:#f59e0b}.bar i:nth-child(3){background:#22c55e}
@@ -80,7 +85,7 @@ function stageHtml(s) {
   const dark = s.stage !== 'light';
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${FONT}"><style>
   *{box-sizing:border-box;margin:0} html,body{height:100%;overflow:hidden}
-  body{background:${dark ? 'radial-gradient(1200px 700px at 30% 10%,#134e4a 0%,#0b1220 65%)' : '#e5e7eb'};display:flex;align-items:center;justify-content:center;gap:${60 / scale}px;padding-bottom:${140 / scale}px;font-family:Inter,system-ui,sans-serif}
+  body{background:${dark ? BG('30%') : '#e5e7eb'};display:flex;align-items:center;justify-content:center;gap:${60 / scale}px;padding-bottom:${140 / scale}px;font-family:Inter,system-ui,sans-serif}
   .dev{width:${w * z + (paper ? 0 : 28)}px;height:${h * z + (paper ? 0 : 28)}px;padding:${paper ? 0 : 14}px;border-radius:${paper ? 2 : 48}px;
     background:${paper ? '#fff' : '#0f172a'};box-shadow:0 30px 90px rgba(0,0,0,.5);${paper ? '' : 'border:2px solid #334155;'}overflow:hidden}
   iframe{width:${w}px;height:${h}px;border:0;border-radius:${paper ? 0 : 36}px;transform:scale(${z});transform-origin:0 0;background:#fff;display:block}
@@ -124,7 +129,7 @@ try {
         [s.y ?? 0, s.selector ?? null, Math.min(s.dur ?? 1500, ms * .8), s.offset ?? 80]); }
     else if (s.do === 'highlight') { await ensure(); await loc.scrollIntoViewIfNeeded(); await page.evaluate(() => window.__clearHl());
       await loc.evaluate(e => e.classList.add('__hl')); }
-    else if (s.do === 'caption') { await ensure(); await page.evaluate(([t, d]) => window.__caption(t, d), [s.text, (s.ms ?? 4000) * pace]);
+    else if (s.do === 'caption') { await ensure(); if (a.captions === 'on') await page.evaluate(([t, d]) => window.__caption(t, d), [s.text, (s.ms ?? 4000) * pace]);
       timeline.push({ start: Date.now() - t0, end: Date.now() - t0 + (s.ms ?? 4000) * pace, text: s.text }); }
     else if (s.do === 'media') { // emulate colorScheme ('dark'|'light'|null) and/or media ('print'|'screen'|null)
       const m = {}; for (const k of ['colorScheme', 'media', 'reducedMotion']) if (k in s) m[k] = s[k];
