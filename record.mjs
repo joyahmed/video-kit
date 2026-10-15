@@ -115,6 +115,9 @@ const timeline = [];
 
 try {
   for (const s of shots.steps) {
+    if (s.at != null) { // `at: seconds` = start this step at that point of the video (sync scenes to a voice-over)
+      const wait = s.at * 1000 * pace - (Date.now() - t0);
+      if (wait > 0) await sleep(wait); else if (wait < -250) console.warn(`late by ${(-wait / 1000).toFixed(1)}s: ${s.do} at ${s.at}`); }
     const start = Date.now(); const ms = planMs(s) * pace;
     const fr = frameOf(s);
     const loc = s.selector ? fr.locator(s.selector).first() : null;

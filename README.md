@@ -28,6 +28,7 @@ node mux.mjs out/demo.webm --srt out/demo.srt [--burn]                 # soft tr
 ```
 
 - `--captions off` keeps the caption box out of the picture (use it with a voice-over, or when the box covers the app); the cues still go to the timeline, so `srt.mjs` makes a subtitle file viewers can turn on.
+- Any step can take `at: <seconds>`: it waits until that point of the video before it runs, so scenes line up with a recorded voice-over (take the times from the voice's .srt). A step that is already late prints a warning.
 - `--pace 1.5` slows everything by 50%. `BASE_URL` env works instead of `--base`.
 - If you trim the head, pass `--offset -<ms>` to srt.mjs so captions still line up.
 - ffmpeg: `$FFMPEG`, then PATH, then ffmpeg-static.
